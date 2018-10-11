@@ -1,0 +1,93 @@
+#Import Modules
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.lines as mlines
+import os, sys
+import matplotlib.font_manager as font_manager
+
+#Set Fonts
+font_path = '/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf'
+prop = font_manager.FontProperties(fname=font_path)
+plt.rcParams['font.family'] = prop.get_name()
+
+#Load Data
+data = np.loadtxt('/home/kyle/Desktop/PTH.bands', dtype='string', delimiter='\r\n')
+details = data[3]
+details = str.split(details)
+
+#Define All Data
+NBands = details[0]
+NBands = int(NBands)
+NLines = float(NBands)/10
+NLines = np.ceil(NLines)
+NLines = int(NLines)
+NPoints = details[2]
+NPoints = int(NPoints)
+HSP = int(5 + NPoints*NLines)
+NHSP = int(4 + NPoints*NLines)
+NHSP = data[NHSP:HSP]
+NHSP = int(NHSP[0])
+DataPoints = data[4:HSP-1]
+count = 0 
+Temp = np.zeros(shape=(NLines))
+X = np.zeros(shape=(NPoints))
+APD = np.zeros(shape=(NPoints,NBands))
+for i in X:
+	DataPoint = []
+	count2 = count * NLines
+	for i in Temp:
+		Point = DataPoints[count2]
+		Point = str.split(Point)
+		Point = np.asfarray(Point, float)
+		if len(Point) == 11:
+			x = Point[0]
+			X[count] = x 
+			Point = np.delete(Point, 0)
+		else:
+			X = X
+			Point = Point
+		DataPoint = np.append(DataPoint, Point)
+		count2 = count2 + 1
+	APD[count] = DataPoint
+	count = count + 1
+#Plot Data
+NB = np.zeros(shape=NBands)
+count = 0
+for i in NB:
+	x = X
+	y = APD[:,count]	
+	if count <= 5:
+		color = 'b'
+	else:
+		color = 'r'
+	plt.plot(x, y, color)
+	count = count + 1
+HSP = data[HSP:]
+count = 0
+xstr = [str() for c in 'c' * NPoints]
+hspstr = [str() for c in 'c' * NHSP]
+for i in HSP:
+	SPoint = HSP[count]
+	SPoint = str.split(SPoint)
+	v = SPoint[0]
+	v = float(v)
+	plt.axvline(v, color='k')
+	hsp = SPoint[1]
+	print(hsp)
+	count = count + 1
+	count2 = 0
+	for i in x:
+		newx = x[count2]
+		if newx == v:
+			xstr[count2] = hsp
+		else:
+			xstr[count2] = xstr[count2]
+		count2 = count2 + 1
+
+#Format Plot Axis
+max_x = np.amax(x)
+plt.ylim([0,525])
+plt.xlim(0, max_x)
+plt.xticks(x, xstr)
+plt.tick_params(axis='x', which='both', bottom='off', top='off')	
+plt.show()
